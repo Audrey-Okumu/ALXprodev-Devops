@@ -1,17 +1,13 @@
 #!/bin/bash
 # -----------------------------------------
 # Task: Parallel Data Fetching
-# Objective: Fetch Pokémon data in parallel
+# Objective: Fetch Pokémon data in parallel using background processes and process management
 # -----------------------------------------
 
-# API base URL
 API_URL="https://pokeapi.co/api/v2/pokemon"
-
-# Output directory for individual Pokémon data
 OUTPUT_DIR="./pokemon_data"
 mkdir -p "$OUTPUT_DIR"
 
-# List of Pokémon to fetch
 POKEMON_LIST=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
 
 # Function to fetch Pokémon data
@@ -20,8 +16,8 @@ fetch_pokemon_data() {
     local output_file="${OUTPUT_DIR}/${name}.json"
 
     echo "Fetching data for $name..."
-    
-    # Fetch data silently (-s) and check for success
+
+    # Fetch data silently and save
     if curl -s -f "${API_URL}/${name}" -o "$output_file"; then
         echo "✅ Successfully fetched $name"
     else
@@ -29,12 +25,22 @@ fetch_pokemon_data() {
     fi
 }
 
-# Loop through Pokémon and fetch data in parallel
+# Start all processes in the background
 for name in "${POKEMON_LIST[@]}"; do
-    fetch_pokemon_data "$name" &   # Run in background
+    fetch_pokemon_data "$name" &
 done
 
-# Wait for all background processes to finish
+# Show running background jobs
+echo "🔍 Currently running background jobs:"
+jobs
+
+# Wait for all jobs to complete
 wait
 
-echo "🎉 All Pokémon data fetched and saved to $OUTPUT_DIR"
+# Re-check if any jobs are still hanging (safety check)
+if [ -n "$(jobs -p)" ]; then
+    echo "⚠️ Some jobs are still running — terminating..."
+    kill $(jobs -p)
+fi
+
+echo "🎉 All Pokémon data fetched and saved in $OUTPUT_DIR"
