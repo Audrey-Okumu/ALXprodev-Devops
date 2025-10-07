@@ -9,15 +9,13 @@ height_dm=$(jq -r '.height' "$INPUT_FILE")
 weight_hg=$(jq -r '.weight' "$INPUT_FILE")
 type=$(jq -r '.types[0].type.name' "$INPUT_FILE")
 
-# Convert height to meters (decimetres ÷ 10)
-height_m=$(awk "BEGIN {printf \"%.1f\", $height_dm / 10}")
+# Convert values
+formatted_height=$(awk "BEGIN {printf \"%.1f\", $height_dm / 10}")
+formatted_weight=$(awk "BEGIN {printf \"%.0f\", $weight_hg / 10}")
 
-# Convert weight to kg (hectograms ÷ 10)
-weight_kg=$(awk "BEGIN {printf \"%.0f\", $weight_hg / 10}")
-
-# Capitalize name and type (optional polish using sed)
+# Capitalize name and type
 name=$(echo "$name" | sed 's/.*/\u&/')
 type=$(echo "$type" | sed 's/.*/\u&/')
 
-# Print formatted output
-echo "$name is of type $type, weighs ${weight_kg}kg, and is ${height_m}m tall."
+# output format 
+echo "$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
