@@ -24,7 +24,10 @@ for file in "$DATA_DIR"/*.json; do
         formatted_height=$(awk "BEGIN {printf \"%.1f\", $height / 10}")
         formatted_weight=$(awk "BEGIN {printf \"%.1f\", $weight / 10}")
 
-        echo "${name^},$formatted_height,$formatted_weight" >> "$REPORT_FILE"
+        # Capitalize first letter using sed instead of ${name^}
+        name=$(echo "$name" | sed 's/.*/\u&/')
+
+        echo "$name,$formatted_height,$formatted_weight" >> "$REPORT_FILE"
     fi
 done
 
